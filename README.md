@@ -44,7 +44,8 @@ This is an **open-science negative-result study**. Both univariate (Beer-Lambert
 | **R² Score** | 0.0007 | 0.055 |
 | **Mean Recovery** | N/A | 145.1% |
 | **Target Avg. Conc.** | 0.39 | 0.39 |
-
+![Spectral Overlay at 202.5 nm](images/figure1_spectra.png)
+![Univariate Calibration Curve](images/Calibaration_Curve.png)
 *Conclusion: Direct UV-Vis analysis is unviable for these trace analytes without prior Solid-Phase Extraction (SPE) or the use of LC-MS/MS.*
 
 ## 🚀 How to Reproduce
