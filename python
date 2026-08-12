@@ -1,0 +1,26 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.cross_decomposition import PLSRegression
+from sklearn.metrics import r2_score
+
+# 1) Load data (simple filename = no path errors)
+df = pd.read_csv(r"YOUR_file_Path").dropna(axis=1)
+
+# 2) X = all wavelength columns, y = fluopyram concentration
+wl = [c for c in df.columns if str(c).replace('.', '', 1).isdigit()]
+X = df[wl].values
+y = df["Fluopyram"].values
+
+# 3) 70% training / 30% validation split
+Xt, Xv, yt, yv = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# 4) PLS model (uses the FULL spectrum, not just 202.5 nm)
+pls = PLSRegression(n_components=3)
+pls.fit(Xt, yt)
+pred = pls.predict(Xv).ravel()
+
+# 5) Results
+print("R2 (PLS) =", round(r2_score(yv, pred), 3))
+mask = yv > 0
+print("Mean recovery % =", round(100 * np.mean(pred[mask]) / np.mean(yv[mask]), 1))
