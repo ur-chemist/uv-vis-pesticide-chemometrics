@@ -2,18 +2,17 @@
 
 # 🔬 UV-Vis Pesticide Chemometrics
 
-> **Multi-analyte UV-Vis spectroscopic analysis of pesticides in complex environmental water matrices using chemometric methods and statistical quality control**
+> **A fully reproducible negative-result study: evaluating univariate Beer–Lambert calibration and multivariate PLS regression for trace-level pesticide monitoring in 846 complex environmental water runoff samples**
 
 [![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Excel](https://img.shields.io/badge/Excel-Analysis-217346?style=for-the-badge&logo=microsoft-excel&logoColor=white)](https://microsoft.com/excel)
-[![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://sqlite.org)
 [![Scikit-learn](https://img.shields.io/badge/Scikit--learn-ML-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
 [![Pandas](https://img.shields.io/badge/Pandas-Data-150458?style=for-the-badge&logo=pandas&logoColor=white)](https://pandas.pydata.org)
+[![Excel](https://img.shields.io/badge/Excel-Analysis-217346?style=for-the-badge&logo=microsoft-excel&logoColor=white)](https://microsoft.com/excel)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21911163.svg)](https://doi.org/10.5281/zenodo.21911163)
 ![Samples](https://img.shields.io/badge/Samples-846%20spectra-orange?style=flat-square)
 ![Wavelength](https://img.shields.io/badge/Wavelength-200–737.5%20nm-blueviolet?style=flat-square)
-![Status](https://img.shields.io/badge/Status-Portfolio%20Project-brightgreen?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Preprint%20Submitted-brightgreen?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square)
 
 </div>
@@ -22,18 +21,25 @@
 
 ## 📌 Overview
 
-This project applies **UV-Vis spectroscopy** and **chemometric analysis** to detect and quantify pesticide residues in complex environmental water samples. The dataset contains 846 full-range spectra (200–737.5 nm) collected from water samples with varying concentrations of four analytes — **Bromide, Fluopyram, Diflufenican, and Mesosulfuron** — across multiple ports, seasons, and soil types.
+This project applies UV-Vis spectrophotometry and chemometric analysis to detect and quantify pesticide residues in complex environmental water runoff samples. The dataset contains **846 full-range spectra (200–737.5 nm)** collected from water samples with varying concentrations of four analytes — **Bromide, Fluopyram, Diflufenican, and Mesosulfuron** — across 12 sampling ports, multiple seasons, and soil types.
 
-The analytical pipeline covers the complete QA/QC workflow: data cleaning, spectral sorting, λmax identification, regression-based calibration, LOD/LOQ calculation, and a multi-wavelength selectivity assessment. The project bridges wet-chemistry analytical thinking with data analysis tools, demonstrating how a QA analyst would approach a real environmental monitoring dataset.
+The study is an honest, fully documented **negative-result investigation**: it demonstrates that UV-Vis spectrophotometry with linear chemometric calibration *cannot* reliably quantify trace pesticides in complex agricultural runoff without sample preparation, and it identifies the precise mechanistic reason why.
 
 | Property | Detail |
 |---|---|
-| 📂 Dataset | Environmental water UV-Vis spectra (real field samples) |
-| 📊 Samples | 846 spectra × 216 clean wavelength channels |
-| 🌊 Wavelength Range | 200 – 737.5 nm (2.5 nm resolution) |
+| 📂 Dataset | Environmental water runoff UV-Vis spectra (real field samples) |
+| 📊 Samples | 846 spectra × 215 clean wavelength channels |
+| 🌊 Wavelength Range | 200–737.5 nm (2.5 nm resolution) |
 | 🧪 Target Analytes | Bromide (Br⁻), Fluopyram, Diflufenican, Mesosulfuron |
 | 📍 Sample Variables | Port (1–12), Season, Soil Type, Storm event |
-| 🗄️ DOI | [10.5281/zenodo.21911163](https://doi.org/10.5281/zenodo.21911163) |
+| 🗄️ Code + Data DOI | [10.5281/zenodo.21911163](https://doi.org/10.5281/zenodo.21911163) |
+| 🗄️ Source Dataset | [10.5281/zenodo.19324549](https://doi.org/10.5281/zenodo.19324549) |
+
+---
+
+## 🖼️ Visual Abstract
+
+![Visual Abstract](visual_abstract.png)
 
 ---
 
@@ -42,12 +48,18 @@ The analytical pipeline covers the complete QA/QC workflow: data cleaning, spect
 ```
 uv-vis-pesticide-chemometrics/
 │
-├── 📓 Analysis.ipynb                     # Main Python notebook: EDA, sorting, modeling
+├── 📓 Analysis.ipynb                     # Main notebook: full analytical pipeline
 ├── 📊 uv_vis_projects_.xlsx              # Raw dataset (846 spectra, 230 columns)
-├── 📋 UVVis_Analysis.xlsx               # Processed workbook with all analysis sheets:
-│   ├── Chemcial_Data_for_PLS            #   Cleaned + sorted main data (NaN cols removed)
-│   ├── Fig1                             #   4 representative spectra for plotting
-│   └── Calc                             #   All formulas: λmax, calibration, LOD/LOQ, selectivity
+├── 📋 UVVis_Analysis.xlsx               # Processed workbook — all formula sheets
+├── 🐍 ubaid_pls_full_analysis.py        # Complete Python script (all 7 methods)
+├── 🖼️  visual_abstract.png              # Graphical abstract
+├── 📄 figures/
+│   ├── fig1_spectra.png                 # Representative UV-Vis spectra
+│   ├── fig2_pca_scores_bromide.png      # PCA bromide audit
+│   ├── fig3_nc_selection.png            # RMSECV vs n_components
+│   ├── fig4_vip_scores.png              # VIP score profile
+│   ├── fig5a_fluopyram_predicted.png    # Predicted vs actual — Fluopyram
+│   └── fig5b_bromide_predicted.png      # Predicted vs actual — Bromide
 └── 📘 README.md
 ```
 
@@ -57,78 +69,67 @@ uv-vis-pesticide-chemometrics/
 
 ### 0️⃣ Data Cleaning
 - Loaded raw `.xlsx` file with 846 samples × 230 columns
-- Identified and deleted 5 trailing NaN wavelength columns (740–750 nm)
-- Final clean range: **200–737.5 nm (216 channels)**
-- Verified no remaining NaN values in spectral region
+- Removed 5 trailing NaN wavelength channels (740–750 nm)
+- Final clean range: **200–737.5 nm (215 channels)**
 
-### 1️⃣ Spectral Sorting & Sample Selection (Figure 1)
-- Sorted all 846 rows by **Fluopyram concentration** (Z→A) to reveal the full concentration gradient
-- Selected 4 representative spectra for Figure 1:
+### 1️⃣ Spectral Characterisation & λmax
+- Sorted 846 samples by Fluopyram concentration
+- Identified λmax at **202.5 nm** — consistent with π→π* transitions of aromatic pesticide chromophores
+- Confirmed DOM dominates spectral profile across all samples
 
-| Row | Fluopyram (mg/L) | Description |
+### 2️⃣ Univariate Beer–Lambert Calibration
+
+| Metric | Value | Interpretation |
 |---|---|---|
-| 2 | **6.16** | High concentration sample |
-| 423 | **0.043** | Medium concentration sample |
-| 845 | **0.000** | Blank / zero (replicate 1) |
-| 846 | **0.000** | Blank / zero (replicate 2) |
+| Slope (β₁) | **−0.758729** | Physically impossible — negative |
+| R² | **0.000738** | <0.1% variance explained |
+| LOD / LOQ | **Negative** | Mathematically invalid |
 
-### 2️⃣ Peak Identification — λmax
+Complete calibration failure — the Beer–Lambert law collapses in this matrix.
 
-> Formula: `=INDEX(J1:HQ1, MATCH(MAX(J2:HQ2), J2:HQ2, 0))`
+### 3️⃣ Cross-Validated PLS Comparison (5-fold CV, n=12)
 
-The λmax of the high-concentration sample falls at **202.5 nm**, consistent with strong UV absorption at short wavelengths typical of aromatic pesticide chromophores and matrix components in environmental water.
+| Model | RMSECV Bromide | R²cv Bromide | RMSECV Fluopyram | R²cv Fluopyram | R²cv Diflufenican | R²cv Mesosulfuron |
+|---|---|---|---|---|---|---|
+| Univariate Beer-Lambert (220 nm) | 694.7 | 0.179 | 0.991 | −0.004 | −0.004 | 0.002 |
+| PLS mean-centred (12 comp.) | 560.5 | 0.466 | 0.751 | 0.423 | 0.002 | 0.027 |
+| **PLS + SNV (12 comp.)** | **468.4** | **0.635** | 0.628 | **0.631** | **0.002** | **0.022** |
 
-### 3️⃣ Calibration Curve — OLS Regression
+> ⚠️ **Honest note:** Despite R²cv of 0.631 for Fluopyram, the cross-validated predictions include physically impossible negative concentrations and heteroscedastic scatter — confirming the model is not analytically viable.
 
-Ordinary Least Squares regression (Fluopyram concentration vs. absorbance at 220 nm) using `LINEST`:
+### 4️⃣ PCA Bromide Silent-Tracer Audit
 
-| Statistic | Formula | Purpose |
-|---|---|---|
-| Slope (S) | `=INDEX(LINEST(...),1,1)` | Sensitivity (Abs per mg/L) |
-| Intercept | `=INDEX(LINEST(...),2,1)` | Blank signal offset |
-| R² | `=INDEX(LINEST(...),3,1)` | Goodness of fit |
-| SE of Slope | `=INDEX(LINEST(...),1,2)` | Slope precision |
-| SE of Intercept (σ) | `=INDEX(LINEST(...),2,2)` | Input to LOD/LOQ |
+> **PC1 explains 82.0% of total spectral variance** and co-varies with Bromide — a UV-transparent anion with no chromophore. This proves that dissolved organic matter (DOM), transported hydrologically with water flow, dominates the spectral dataset — not the pesticide signals.
 
-> ⚠️ **Honest note on R²:** The correlation between a single-compound concentration and total absorbance at 220 nm is modest in this dataset. This is expected in complex environmental matrices — the 220 nm signal is shared by multiple UV-absorbing species. In a real QA setting, this finding would prompt method refinement (e.g., PLS regression across the full spectral range rather than univariate calibration at one wavelength). The formulas are correct; the data is telling the real story.
+The bromide audit elevates this from a scalar Pearson correlation to a multivariate proof: the contamination of spectral variance is not localised to one wavelength but pervasive across the entire dominant principal component.
 
-### 4️⃣ LOD & LOQ
-
-Calculated from LINEST output directly in the Calc sheet:
+### 5️⃣ VIP Score Analysis
 
 ```
-LOD = 3.3 × σ / S
-LOQ = 10.0 × σ / S
+VIP > 1.0:  202–300 nm ONLY  (maximum = 3.1 near 210–220 nm)
+VIP < 1.0:  all wavelengths above 300 nm
 ```
 
-Where `σ` = standard error of the intercept, `S` = slope. Both are live-linked formulas — changing the calibration range updates LOD/LOQ automatically.
+Analytically relevant spectral information is confined to the UV region — precisely where DOM absorbs most intensely. This explains why selectivity is impossible without physical separation.
 
-### 5️⃣ Selectivity Assessment
+### 6️⃣ Predicted vs Actual — Three Failure Modes
 
-Pearson correlation coefficients between each analyte's concentration and absorbance at five diagnostic wavelengths:
-
-| Wavelength | Column | Analytical Significance |
-|---|---|---|
-| 220 nm | R | Strong UV absorbers; matrix-sensitive |
-| 230 nm | V | Aromatic n→π* transitions |
-| 255 nm | AF | Characteristic for some pesticide chromophores |
-| 270 nm | AL | Benzene ring absorption region |
-| 300 nm | AX | Extended aromatic systems |
-
-> **Expected pattern:** Pesticide rows should show structured UV correlations; Bromide (no UV chromophore) should approach zero. Complex environmental matrices often show attenuated contrasts due to spectral interference — which is itself a scientifically important finding.
+All cross-validated outputs exhibit:
+- **Severe point mass at zero** — inflating apparent R²cv
+- **Negative concentration predictions** — physically impossible; calibration surface not constrained
+- **Heteroscedastic scatter** — widens at higher concentrations (opposite of a good calibration)
 
 ---
-<p align="center">
-  <img src="images/figure1_spectra.png" alt="Spectral Overlay at 202.5 nm" width="48%" />
-  <img src="images/Calibaration_Curve.png" alt="Univariate Calibration Curve" width="48%" />
-</p> 📊 Key Findings
+
+## 📊 Key Findings
 
 ```
-🔬 λmax         →   202.5 nm (high-concentration sample, consistent with UV-active matrix)
-📉 R² (OLS)    →   Modest at single wavelength — confirms need for multivariate methods
-🧂 Bromide      →   Measurable background correlation due to co-eluting matrix species
-🌱 Pesticides   →   UV-region signals detectable; multivariate calibration recommended
-📐 LOD/LOQ      →   Calculated directly from LINEST SE of intercept (live formula)
+🔬 λmax           →  202.5 nm — π→π* transitions in UV region (DOM-dominated)
+📉 Beer-Lambert   →  Complete failure: slope = −0.758729, R² = 0.000738
+📊 PLS+SNV best   →  R²cv = 0.631 (Fluopyram), 0.635 (Bromide) — still not viable
+🧂 Bromide proof  →  82.0% of PC1 variance = hydrological DOM, not analyte signal
+🌱 Diflufenican   →  Completely undetectable across all models (R²cv ≈ 0.002)
+📐 VIP region     →  202–300 nm only — same window as dominant DOM absorption
 ```
 
 ---
@@ -137,49 +138,47 @@ Pearson correlation coefficients between each analyte's concentration and absorb
 
 | Tool | Purpose |
 |---|---|
-| 🐍 Python + Pandas | Data loading, EDA, correlation analysis |
-| 📊 openpyxl | Multi-sheet workbook construction and formula writing |
-| 🤖 Scikit-learn | Regression modeling |
-| 📈 Matplotlib / Seaborn | Spectral visualization |
-| 📉 Excel LINEST | OLS regression statistics with full error output |
-| 🗄️ SQLite | Results storage and threshold querying |
+| 🐍 Python + Pandas | Data loading, cleaning, EDA |
+| 🤖 Scikit-learn (PLSRegression, PCA, KFold) | All ML models and cross-validation |
+| 📈 Matplotlib | All 5 figures |
+| 📉 Excel (LINEST, CORREL) | Supporting calculations |
 | 📓 Jupyter Notebook | Reproducible analysis environment |
 
 ---
 
-## ⚠️ Limitations & Next Steps
+## ⚠️ Limitations & What This Means in Practice
 
-This is a **student portfolio project** on a real field dataset. Known limitations are documented, not hidden:
+This is a **documented negative result** on a real field dataset. Key limitations:
 
-- [ ] **Univariate calibration is insufficient** for complex environmental matrices — PLS (Partial Least Squares) across the full spectrum is the appropriate next method
-- [ ] **Single wavelength R²** is modest — expected, not a bug in the code
-- [ ] **LOD/LOQ** should be validated against certified reference standards in a real lab setting
-- [ ] **Selectivity table** uses CORREL, which assumes linearity — non-linear interactions exist in real matrices
-- [ ] **Next addition:** PLS regression across all 216 wavelengths using scikit-learn `PLSRegression`
-- [ ] **Next addition:** Confusion matrix and cross-validated accuracy for classification of contaminated vs. clean samples
+- [ ] Single catchment dataset — DOM composition varies regionally
+- [ ] No fully independent external validation set (internal CV only)
+- [ ] RMSECV units are native dataset units (Bromide range ~3,700× larger than pesticides)
+- [ ] VIP values at 202–212 nm may reflect instrumental edge artefacts
+
+**What should be done instead:**
+- **SPE pre-concentration** (Oasis HLB, C18) — selectively removes DOM before UV-Vis
+- **LC-MS/MS with MRM** — mass selectivity immune to DOM optical interference
+- **MCR-ALS** — non-negativity constrained spectral deconvolution
 
 ---
 
-## 💡 What This Project Demonstrates
+## 💡 Why This Negative Result Matters
 
-- Reading OLS output critically — not just R², but slope direction, p-values, and what modest fit means in a real matrix context
-- Building multi-sheet Excel workbooks programmatically with live, linked formulas
-- Applying Beer-Lambert thinking to a real environmental dataset with interferences
-- Writing analytical reports that separate what the data shows from what the model cannot claim
-- Connecting Python pipeline output to SQL-structured results storage
+> *"Negative results, executed with mathematical rigour and open-source reproducibility, are the cartographic boundaries that prevent the scientific community from wandering into methodological dead-ends."*
+
+The environmental sensor literature is full of UV-Vis sensors validated in clean water with high analyte concentrations. This study documents, with real field data and open code, exactly where and why those sensors fail — and what the signal-to-background ratio actually looks like (∼10⁻⁵). Any future researcher can reproduce every number here and benchmark new methods against this baseline.
 
 ---
 
 ## 📖 Citation
 
-If you use this dataset or analysis in your own work, please cite:
-
 ```bibtex
-@misc{ubaid2025uvvis,
+@misc{ubaid2026uvvis,
   author       = {Ubaid Ur Rehman},
-  title        = {UV-Vis Pesticide Chemometrics: Multi-analyte spectroscopic 
-                  analysis of environmental water samples},
-  year         = {2025},
+  title        = {Evaluation of Chemometric-Assisted UV-Vis Spectrophotometry
+                  for Trace-Level Pesticide Monitoring in Complex Environmental
+                  Water Matrices: A Negative-Result Comparative Study},
+  year         = {2026},
   publisher    = {Zenodo},
   doi          = {10.5281/zenodo.21911163},
   url          = {https://doi.org/10.5281/zenodo.21911163}
@@ -199,7 +198,7 @@ If you use this dataset or analysis in your own work, please cite:
 BS Chemistry (Final Semester) | The Islamia University of Bahawalpur, Pakistan
 CGPA: 3.84 / 4.0 | CM Honhaar Scholar | IChC 2026 Qualifier
 
-*Targeting roles in Quality Assurance, Analytical Chemistry, and Data-driven R&D*
+*Targeting roles in Quality Assurance, Analytical Chemistry, and Environmental R&D*
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/ubaid-ur-rehman-chemist)
 [![GitHub](https://img.shields.io/badge/GitHub-Profile-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ur-chemist)
@@ -210,6 +209,6 @@ CGPA: 3.84 / 4.0 | CM Honhaar Scholar | IChC 2026 Qualifier
 
 <div align="center">
 
-*Built as part of a portfolio demonstrating the intersection of analytical chemistry and data science — for QA, R&D, and environmental monitoring roles*
+*Fully open science — dataset, code, figures, and preprint all publicly archived*
 
 </div>
